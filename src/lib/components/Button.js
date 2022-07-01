@@ -7,9 +7,12 @@ import { providers } from "ethers";
 
 class Button extends React.Component {
   state={
-    signer : null,
+    signer: null,
     isModalConnect: false,
-    isModalPay: false
+    isModalPay: false,
+    isModalLoading: false,
+    isModalSuccess: false,
+    isModalFailed: false
   };
 
   handleConnect = () => {
@@ -20,6 +23,18 @@ class Button extends React.Component {
   handlePay = () => {
     this.setState({ isModalPay: !this.state.isModalPay });
   };
+
+  handleLoading = () => {
+    this.setState({ isModalLoading : !this.state.isModalLoading });
+  }
+
+  handleSuccess = () => {
+    this.setState({ isModalSuccess : !this.state.isModalSuccess });
+  }
+
+  handleFailed = () => {
+    this.setState({ isModalFailed : !this.state.isModalFailed });
+  }
 
   metamask = async() => {
     try {
@@ -69,6 +84,8 @@ class Button extends React.Component {
   // Pay with ETH
   async _payWithEth (amount, receiver){
     if(amount !== undefined && receiver !== undefined){
+      this.handlePay();
+      this.handleLoading();
       try {
           if(this.state.signer == null){
             console.log("Connect Your Wallet");return;
@@ -80,26 +97,34 @@ class Button extends React.Component {
           };
           let tx = await contract.PayWithETH(receiver, overrides);
           let res = await tx.wait();
+          
           if(res.status === 1){
-            console.log(res);
+            this.handleLoading();
+            this.handleSuccess();
           }else{
-            console.log(res);
+            this.handleLoading();
+            this.handleFailed();
           }
       } catch (error) {
           if(error.code === undefined){
-            console.log("error");
+            this.handleLoading();
+            this.handleFailed();
           }else{
-            console.log(error.code);
+            this.handleLoading();
+            this.handleFailed();
           }
       }
     }else{
-      console.log("error");
+      this.handleLoading();
+      this.handleFailed();
     }
   }
 
   // Pay With Tokens
   async _payWithToken(_to, _token, amount, _decimal){
     if(amount !== undefined && _to !== undefined && _token !== undefined && _decimal!==undefined){
+        this.handlePay();
+        this.handleLoading();
         var _amount = "";
         if(_decimal === String(18)){
           _amount = ethers.utils.parseEther(amount);
@@ -122,19 +147,24 @@ class Button extends React.Component {
             tx = await contract.SwapTokenForETH(String(_amount),_token.toString(), _to.toString(), overrides);
             res = await tx.wait();
             if(res.status === 1){
-              console.log(res);
+              this.handleLoading();
+              this.handleSuccess();
             }else{
-              console.log(res);
+              this.handleLoading();
+              this.handleFailed();
             }
         } catch (error) {
             if(error.code === undefined){
-              console.log("error")
+              this.handleLoading();
+              this.handleFailed();
             }else{
-              console.log(error.code);
+              this.handleLoading();
+              this.handleFailed();
             }
         }
     }else{
-      console.log("error");
+      this.handleLoading();
+      this.handleFailed();
     }
 
   }
@@ -142,6 +172,9 @@ class Button extends React.Component {
   render() {
     const modalConnect = this.state.isModalConnect ? "is-active" : "";
     const modalPay = this.state.isModalPay ? "is-active" : "";
+    const modalLoading = this.state.isModalLoading ? "is-active" : "";
+    const modalSuccess = this.state.isModalSuccess ? "is-active" : "";
+    const modalFailed = this.state.isModalFailed ? "is-active" : "";
 
     return (
       <div>
@@ -211,6 +244,83 @@ class Button extends React.Component {
                 </div>
               </div>
               {this.listTokens}
+            </section>
+          </div>
+        </div>
+
+        {/* Modal Loading */}
+        <div className={`modal ${modalLoading}`}>
+          <div className="modal-background" />
+          <div className="modal-card">
+            <header className="modal-card-head">
+              <p className="modal-card-title"> Please wait your payment is being processed </p>
+            </header>
+            <section className="modal-card-body">
+              <div className="field">
+                <div className="control">
+                  <div className="columns is-mobile">
+                    <div className="column is-half is-offset-one-quarter has-text-centered">
+                      <div className="load">
+                        <div className="lds-dual-ring"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        {/* Modal Success */}
+        <div className={`modal ${modalSuccess}`}>
+          <div className="modal-background" />
+          <div className="modal-card">
+            <header className="modal-card-head">
+              <p className="modal-card-title"> Your Payment has been successfully processed </p>
+              <button
+                onClick={this.handleSuccess}
+                className="delete"
+                aria-label="close"
+              />
+            </header>
+            <section className="modal-card-body">
+              <div className="field">
+                <div className="control">
+                  <div className="columns is-mobile">
+                    <div className="column is-half is-offset-one-quarter has-text-centered">
+                     <p className="block"> Succes </p>                                </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        {/* Modal Failed */}
+        <div className={`modal ${modalFailed}`}>
+          <div className="modal-background" />
+          <div className="modal-card">
+            <header className="modal-card-head">
+              <p className="modal-card-title"> Transaction Failed </p>
+              <button
+                onClick={this.handleFailed}
+                className="delete"
+                aria-label="close"
+              />
+            </header>
+            <section className="modal-card-body">
+              <div className="field">
+                <div className="control">
+                  <div className="columns is-mobile">
+                    <div className="column is-half is-offset-one-quarter has-text-centered">
+                      <p className="block"> Failed </p>
+                      <p className="block">
+                        Check <a>EtherScan</a> For more details.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </section>
           </div>
         </div>
