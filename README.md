@@ -3,5 +3,5 @@
 ## Installation
 
 ```
-npm install 
+npm install web3-component-test
 ```
