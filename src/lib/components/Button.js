@@ -275,24 +275,26 @@ class Button extends React.Component {
         <div className={`modal ${modalSuccess}`}>
           <div className="modal-background" />
           <div className="modal-card">
-            <header className="modal-card-head">
-              <p className="modal-card-title"> Your Payment has been successfully processed </p>
-              <button
-                onClick={this.handleSuccess}
-                className="delete"
-                aria-label="close"
-              />
-            </header>
-            <section className="modal-card-body">
-              <div className="field">
-                <div className="control">
-                  <div className="columns is-mobile">
-                    <div className="column is-half is-offset-one-quarter has-text-centered">
-                     <p className="block"> Succes </p>                                </div>
-                  </div>
-                </div>
+            <article class="message is-success">
+              <div class="message-header">
+                <p className="modal-card-title"> Succes </p>
+                <button
+                  onClick={this.handleSuccess}
+                  className="delete"
+                  aria-label="close"
+                />
               </div>
-            </section>
+              <div class="message-body">
+                <div className="field">
+                  <div className="control">
+                    <div className="columns is-mobile">
+                      <div className="column has-text-centered">
+                        <p className="block my-5"> Your Payment Has Been Successfully Processed</p>                                </div>
+                    </div>
+                  </div>
+                </div>              
+              </div>
+            </article>
           </div>
         </div>
 
@@ -300,28 +302,30 @@ class Button extends React.Component {
         <div className={`modal ${modalFailed}`}>
           <div className="modal-background" />
           <div className="modal-card">
-            <header className="modal-card-head">
-              <p className="modal-card-title"> Transaction Failed </p>
-              <button
-                onClick={this.handleFailed}
-                className="delete"
-                aria-label="close"
-              />
-            </header>
-            <section className="modal-card-body">
-              <div className="field">
-                <div className="control">
-                  <div className="columns is-mobile">
-                    <div className="column is-half is-offset-one-quarter has-text-centered">
-                      <p className="block"> Failed </p>
-                      <p className="block">
-                        Check <a>EtherScan</a> For more details.
-                      </p>
+            <article class="message is-danger">
+              <div class="message-header">
+                <p className="modal-card-title"> Transaction Failed </p>
+                <button
+                  onClick={this.handleFailed}
+                  className="delete"
+                  aria-label="close"
+                />
+              </div>
+              <div class="message-body">
+                <div className="field">
+                  <div className="control">
+                    <div className="columns is-mobile">
+                      <div className="column has-text-centered">
+                        <p className="block my-5">
+                          Your payment has been declined <br />
+                          Please check your details and try again or contact support
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </section>
+            </article>
           </div>
         </div>
 
