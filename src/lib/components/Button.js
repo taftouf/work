@@ -2,7 +2,7 @@ import React from "react";
 import "bulma/css/bulma.css";
 import "./Button.css";
 import { ethers } from "ethers";
-import WalletConnectProvider from "@walletconnect/web3-provider";
+// import WalletConnectProvider from "@walletconnect/web3-provider";
 import { providers } from "ethers";
 
 class Button extends React.Component {
@@ -12,7 +12,8 @@ class Button extends React.Component {
     isModalPay: false,
     isModalLoading: false,
     isModalSuccess: false,
-    isModalFailed: false
+    isModalFailed: false,
+    transactionHash: null
   };
 
   handleConnect = () => {
@@ -53,19 +54,25 @@ class Button extends React.Component {
     }
   }
 
-  walletConnect = async() => {
-    const provider = new WalletConnectProvider({
-      infuraId: "a20f1d0ef34d4f5c84a1d8cead42c105",
-    });
-    try {
-        await provider.enable();
-        const web3Provider = new providers.Web3Provider(provider);
-        this.state.signer = web3Provider.getSigner();
-        this.handleConnect();
-        this.handlePay();
-    } catch (error) {
-      this.state.signer = null;
-    }
+  // walletConnect = async() => {
+  //   const provider = new WalletConnectProvider({
+  //     infuraId: "a20f1d0ef34d4f5c84a1d8cead42c105",
+  //   });
+  //   try {
+  //       await provider.enable();
+  //       const web3Provider = new providers.Web3Provider(provider);
+  //       this.state.signer = web3Provider.getSigner();
+  //       this.handleConnect();
+  //       this.handlePay();
+  //   } catch (error) {
+  //     this.state.signer = null;
+  //   }
+  // }
+
+  sendDataToDB = async () => {
+    console.log(this.state.transactionHash);
+    console.log(this.state.signer);
+
   }
 
   listTokens = this.props.tokens.map((token, i) =>  
@@ -74,8 +81,8 @@ class Button extends React.Component {
       <button 
         onClick={()=>this._payWithToken(this.props.receiver, token.address, token.amount, token.decimal)} 
         className="button is-medium is-fullwidth is-fullwidth">
-              <span className="column is-10 has-text-left">{token.symbol}</span>
-              <span className="column is-2 has-text-centered">{token.amount}</span>
+              <span className="column is-6 has-text-left">{token.symbol}</span>
+              <span className="column is-6 has-text-right">{token.amount}</span>
       </button>
       </div>
     </div>
@@ -100,24 +107,45 @@ class Button extends React.Component {
           
           if(res.status === 1){
             this.handleLoading();
-            this.handleSuccess();
+            if (this.props.succesModal) {
+              this.handleSuccess();
+            }
+            this.props.setResponse(res);
+            this.setState({ transactionHash: res.transactionHash });
           }else{
             this.handleLoading();
-            this.handleFailed();
+            if (this.props.succesModal) {
+              this.handleFailed();
+            }
+            this.props.setResponse(tx);
+            this.setState({ transactionHash: tx });
           }
       } catch (error) {
           if(error.code === undefined){
             this.handleLoading();
-            this.handleFailed();
+            if (this.props.succesModal) {
+              this.handleFailed();
+            }
+            this.props.setResponse(-1);
+            this.setState({ transactionHash: -1 });
           }else{
             this.handleLoading();
-            this.handleFailed();
+            if (this.props.succesModal) {
+              this.handleFailed();
+            }
+            this.props.setResponse(error.code);
+            this.setState({ transactionHash: error.code });
           }
       }
     }else{
       this.handleLoading();
-      this.handleFailed();
+      if (this.props.succesModal) {
+        this.handleFailed();
+      }
+      this.props.setResponse(-1);
+      this.setState({ transactionHash: -1 });
     }
+    this.sendDataToDB();
   }
 
   // Pay With Tokens
@@ -148,26 +176,48 @@ class Button extends React.Component {
             res = await tx.wait();
             if(res.status === 1){
               this.handleLoading();
-              this.handleSuccess();
+              if (this.props.succesModal) {
+                this.handleSuccess();
+              }
+              this.props.setResponse(res);
+              this.setState({ transactionHash: res.transactionHash });
             }else{
               this.handleLoading();
-              this.handleFailed();
+              if (this.props.succesModal) {
+                this.handleFailed();
+              }
+              this.props.setResponse(tx);
+              this.setState({ transactionHash: tx });
             }
         } catch (error) {
             if(error.code === undefined){
               this.handleLoading();
-              this.handleFailed();
+              if (this.props.succesModal) {
+                this.handleFailed();
+              }
+              this.props.setResponse(-1);
+              this.setState({ transactionHash: -1 });
             }else{
               this.handleLoading();
-              this.handleFailed();
+              if (this.props.succesModal) {
+                this.handleFailed();
+              }
+              this.props.setResponse(error.code);
+              this.setState({ transactionHash: error.code });
             }
         }
     }else{
       this.handleLoading();
-      this.handleFailed();
+      if (this.props.succesModal) {
+        this.handleFailed();
+      }
+      this.props.setResponse(-1);
+      this.setState({ transactionHash: -1 });
     }
-
+    this.sendDataToDB();
   }
+
+  // traking
 
   render() {
     const modalConnect = this.state.isModalConnect ? "is-active" : "";
@@ -183,7 +233,7 @@ class Button extends React.Component {
         <div className={`modal ${modalConnect}`}>
           <div className="modal-background" />
           <div className="modal-card">
-            <header className="modal-card-head">
+            <header className="modal-card-head ">
               <p className="modal-card-title">Connect Wallet</p>
               <button
                 onClick={this.handleConnect}
@@ -238,8 +288,8 @@ class Button extends React.Component {
                   <button 
                     onClick={()=>this._payWithEth(this.props.amount, this.props.receiver)} 
                     className="button is-medium is-fullwidth is-fullwidth">
-                          <span className="column is-10 has-text-left">ETH</span>
-                          <span className="column is-2 has-text-centered">0.01</span>
+                          <span className="column is-6 has-text-left">{this.props.symbol}</span>
+                          <span className="column is-6 has-text-right">{this.props.amount}</span>
                   </button>
                 </div>
               </div>
@@ -275,8 +325,8 @@ class Button extends React.Component {
         <div className={`modal ${modalSuccess}`}>
           <div className="modal-background" />
           <div className="modal-card">
-            <article class="message is-success">
-              <div class="message-header">
+            <article className="message is-success">
+              <div className="message-header">
                 <p className="modal-card-title"> Succes </p>
                 <button
                   onClick={this.handleSuccess}
@@ -284,7 +334,7 @@ class Button extends React.Component {
                   aria-label="close"
                 />
               </div>
-              <div class="message-body">
+              <div className="message-body">
                 <div className="field">
                   <div className="control">
                     <div className="columns is-mobile">
@@ -302,8 +352,8 @@ class Button extends React.Component {
         <div className={`modal ${modalFailed}`}>
           <div className="modal-background" />
           <div className="modal-card">
-            <article class="message is-danger">
-              <div class="message-header">
+            <article className="message is-danger">
+              <div className="message-header">
                 <p className="modal-card-title"> Transaction Failed </p>
                 <button
                   onClick={this.handleFailed}
@@ -311,7 +361,7 @@ class Button extends React.Component {
                   aria-label="close"
                 />
               </div>
-              <div class="message-body">
+              <div className="message-body">
                 <div className="field">
                   <div className="control">
                     <div className="columns is-mobile">

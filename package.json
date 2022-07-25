@@ -1,6 +1,6 @@
 {
   "name": "web3-component-test",
-  "version": "0.1.9",
+  "version": "0.2.1",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "files": [
@@ -8,14 +8,14 @@
   ],
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "react": "^16.3.2",
-    "react-dom": "^16.3.2",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
     "react-scripts": "1.1.4",
-    "react-test-renderer": "^16.3.2"
+    "react-test-renderer": "^16.8.4"
   },
   "peerDependencies": {
-    "react": ">16.3.2",
-    "react-dom": ">16.3.2"
+    "react": ">16.8.4",
+    "react-dom": ">16.8.4"
   },
   "scripts": {
     "start": "react-scripts start",
