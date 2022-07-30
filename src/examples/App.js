@@ -18,6 +18,7 @@ const App = () => {
       <h1>Test Component</h1>
       
       <Button 
+        Apikey="xfPW-Y0sX-39R2-rFyB"
         label="Pay With Crypto"
         symbol="ETH"
         amount="0.001" 

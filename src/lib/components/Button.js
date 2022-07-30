@@ -4,8 +4,16 @@ import "./Button.css";
 import { ethers } from "ethers";
 // import WalletConnectProvider from "@walletconnect/web3-provider";
 import { providers } from "ethers";
+import axios from "axios";
+import TrackClick from "./Track";
+
 
 class Button extends React.Component {
+  constructor(props) {
+    super(props);
+    this.buttonRef = React.createRef();
+  }
+
   state={
     signer: null,
     isModalConnect: false,
@@ -13,11 +21,16 @@ class Button extends React.Component {
     isModalLoading: false,
     isModalSuccess: false,
     isModalFailed: false,
-    transactionHash: null
+    transactionHash: null,
+    position: null,
+    wallet: null,
+    eventName: null
   };
 
-  handleConnect = () => {
+  handleConnect = (e) => {
+    const rect = this.buttonRef.current.getBoundingClientRect()
     this.setState({ isModalConnect: !this.state.isModalConnect });
+    this.setState({position : {'top':rect.top, 'right':rect.right, 'bottom':rect.bottom, 'left':rect.left}});
   };
 
 
@@ -44,6 +57,7 @@ class Button extends React.Component {
       this.state.signer = provider.getSigner();
       this.handleConnect();
       this.handlePay();
+      this.setState({wallet : "metamask"});
     } catch (error) {
         if (error.code) {
           this.state.signer = null;
@@ -64,6 +78,7 @@ class Button extends React.Component {
   //       this.state.signer = web3Provider.getSigner();
   //       this.handleConnect();
   //       this.handlePay();
+  //       this.state({wallet : "walletConnect"});
   //   } catch (error) {
   //     this.state.signer = null;
   //   }
@@ -71,8 +86,39 @@ class Button extends React.Component {
 
   sendDataToDB = async () => {
     console.log(this.state.transactionHash);
+    console.log(this.props.Apikey);
     console.log(this.state.signer);
-
+    if(this.props.Apikey === undefined || this.props.Apikey === ""){
+      console.log(this.props, -1);
+      return -1;
+    }else{
+      axios({
+      method: "post",
+      url: "https://abierto-api.herokuapp.com/api/payments",
+      data: {
+        key: this.props.Apikey,
+        transactionHash: this.state.transactionHash,
+        wallet: this.state.wallet,
+        position:this.state.position,
+        eventName: this.state.eventName,
+        protocol : window.location.protocol,
+        host : window.location.host,
+        pathname : window.location.pathname
+      },
+      headers: { 
+        'Content-Type': 'application/json' ,
+        'Accept': 'application/json'
+       },
+    })
+      .then(function (response) {
+        //handle success
+        console.log(response);
+      })
+      .catch(function (response) {
+        //handle error
+        console.log(response);
+      });
+    }
   }
 
   listTokens = this.props.tokens.map((token, i) =>  
@@ -380,11 +426,12 @@ class Button extends React.Component {
         </div>
 
         {/* Entry Button */}
-        <button 
-          onClick={this.handleConnect} 
-          className="button is-medium is-fullwidth">
-         {this.props.label}
-        </button>
+          <button 
+              ref={this.buttonRef}
+              onClick={(e)=>{this.handleConnect(); this.setState({eventName : e.type})}} 
+              className="button is-medium is-fullwidth">
+                {this.props.label}
+          </button>          
       </div>
     );
   }
