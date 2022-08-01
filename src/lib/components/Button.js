@@ -2,7 +2,7 @@ import React from "react";
 import "bulma/css/bulma.css";
 import "./Button.css";
 import { ethers } from "ethers";
-import WalletConnectProvider from "@walletconnect/web3-provider";
+// import WalletConnectProvider from "@walletconnect/web3-provider";
 import { providers } from "ethers";
 import axios from "axios";
 import TrackClick from "./Track";
@@ -26,7 +26,8 @@ class Button extends React.Component {
     wallet: null,
     eventName: null,
     tokenIn: null,
-    tokenOut:null
+    tokenOut:null,
+    amountIn: null
   };
 
   handleConnect = (e) => {
@@ -70,21 +71,21 @@ class Button extends React.Component {
     }
   }
 
-  walletConnect = async() => {
-    const provider = new WalletConnectProvider({
-      infuraId: "a20f1d0ef34d4f5c84a1d8cead42c105",
-    });
-    try {
-        await provider.enable();
-        const web3Provider = new providers.Web3Provider(provider);
-        this.state.signer = web3Provider.getSigner();
-        this.handleConnect();
-        this.handlePay();
-        this.state({wallet : "walletConnect"});
-    } catch (error) {
-      this.state.signer = null;
-    }
-  }
+  // walletConnect = async() => {
+  //   const provider = new WalletConnectProvider({
+  //     infuraId: "a20f1d0ef34d4f5c84a1d8cead42c105",
+  //   });
+  //   try {
+  //       await provider.enable();
+  //       const web3Provider = new providers.Web3Provider(provider);
+  //       this.state.signer = web3Provider.getSigner();
+  //       this.handleConnect();
+  //       this.handlePay();
+  //       this.state({wallet : "walletConnect"});
+  //   } catch (error) {
+  //     this.state.signer = null;
+  //   }
+  // }
 
   sendDataToDB = async () => {
     console.log(this.state.transactionHash);
@@ -102,6 +103,7 @@ class Button extends React.Component {
         transactionHash: this.state.transactionHash,
         tokenIn: this.state.tokenIn,
         tokenOut: this.state.tokenOut,
+        amountIn: this.state.amountIn,
         wallet: this.state.wallet,
         position:this.state.position,
         eventName: this.state.eventName,
@@ -195,6 +197,7 @@ class Button extends React.Component {
       this.props.setResponse(-1);
       this.setState({ transactionHash: -1 });
     }
+    this.setState({amountIn: amount});
     this.setState({tokenIn : 'Eth'});
     this.setState({tokenOut : 'Eth'});
     this.sendDataToDB();
@@ -266,6 +269,7 @@ class Button extends React.Component {
       this.props.setResponse(-1);
       this.setState({ transactionHash: -1 });
     }
+    this.setState({amountIn: amount});
     this.setState({tokenIn : _tokenIn});
     this.setState({tokenOut : 'Eth'});
     this.sendDataToDB();
