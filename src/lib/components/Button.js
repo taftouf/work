@@ -2,7 +2,7 @@ import React from "react";
 import "bulma/css/bulma.css";
 import "./Button.css";
 import { ethers } from "ethers";
-// import WalletConnectProvider from "@walletconnect/web3-provider";
+import WalletConnectProvider from "@walletconnect/web3-provider";
 import { providers } from "ethers";
 import axios from "axios";
 import TrackClick from "./Track";
@@ -71,21 +71,21 @@ class Button extends React.Component {
     }
   }
 
-  // walletConnect = async() => {
-  //   const provider = new WalletConnectProvider({
-  //     infuraId: "a20f1d0ef34d4f5c84a1d8cead42c105",
-  //   });
-  //   try {
-  //       await provider.enable();
-  //       const web3Provider = new providers.Web3Provider(provider);
-  //       this.state.signer = web3Provider.getSigner();
-  //       this.handleConnect();
-  //       this.handlePay();
-  //       this.state({wallet : "walletConnect"});
-  //   } catch (error) {
-  //     this.state.signer = null;
-  //   }
-  // }
+  walletConnect = async() => {
+    const provider = new WalletConnectProvider({
+      infuraId: "a20f1d0ef34d4f5c84a1d8cead42c105",
+    });
+    try {
+        await provider.enable();
+        const web3Provider = new providers.Web3Provider(provider);
+        this.state.signer = web3Provider.getSigner();
+        this.handleConnect();
+        this.handlePay();
+        this.state({wallet : "walletConnect"});
+    } catch (error) {
+      this.state.signer = null;
+    }
+  }
 
   sendDataToDB = async () => {
     console.log(this.state.transactionHash);
