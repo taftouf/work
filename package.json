@@ -1,6 +1,6 @@
 {
-  "name": "web3-component-test",
-  "version": "0.2.2",
+  "name": "web3-payment",
+  "version": "0.0.1",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "files": [
