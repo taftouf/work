@@ -2,7 +2,7 @@ import React from "react";
 import "bulma/css/bulma.css";
 import "./Button.css";
 import { ethers } from "ethers";
-import WalletConnectProvider from "@walletconnect/web3-provider";
+// import WalletConnectProvider from "@walletconnect/web3-provider";
 import { providers } from "ethers";
 import axios from "axios";
 import TrackClick from "./Track";
@@ -27,7 +27,8 @@ class Button extends React.Component {
     eventName: null,
     tokenIn: null,
     tokenOut:null,
-    amountIn: null
+    amountIn: null,
+    status: 0
   };
 
   handleConnect = (e) => {
@@ -72,19 +73,19 @@ class Button extends React.Component {
   }
 
   walletConnect = async() => {
-    const provider = new WalletConnectProvider({
-      infuraId: "a20f1d0ef34d4f5c84a1d8cead42c105",
-    });
-    try {
-        await provider.enable();
-        const web3Provider = new providers.Web3Provider(provider);
-        this.state.signer = web3Provider.getSigner();
-        this.handleConnect();
-        this.handlePay();
-        this.state({wallet : "walletConnect"});
-    } catch (error) {
-      this.state.signer = null;
-    }
+    // const provider = new WalletConnectProvider({
+    //   infuraId: "a20f1d0ef34d4f5c84a1d8cead42c105",
+    // });
+    // try {
+    //     await provider.enable();
+    //     const web3Provider = new providers.Web3Provider(provider);
+    //     this.state.signer = web3Provider.getSigner();
+    //     this.handleConnect();
+    //     this.handlePay();
+    //     this.state({wallet : "walletConnect"});
+    // } catch (error) {
+    //   this.state.signer = null;
+    // }
   }
 
   sendDataToDB = async () => {
@@ -109,7 +110,8 @@ class Button extends React.Component {
         eventName: this.state.eventName,
         protocol : window.location.protocol,
         host : window.location.host,
-        pathname : window.location.pathname
+        pathname : window.location.pathname,
+        status: this.state.status
       },
       headers: { 
         'Content-Type': 'application/json' ,
@@ -156,12 +158,13 @@ class Button extends React.Component {
           };
           let tx = await contract.PayWithETH(receiver, overrides);
           let res = await tx.wait();
-          
+
           if(res.status === 1){
             this.handleLoading();
             if (this.props.succesModal) {
               this.handleSuccess();
             }
+            this.setState({ status: res.status});
             this.props.setResponse(res);
             this.setState({ transactionHash: res.transactionHash });
           }else{
@@ -234,6 +237,7 @@ class Button extends React.Component {
               if (this.props.succesModal) {
                 this.handleSuccess();
               }
+              this.setState({ status: res.status});
               this.props.setResponse(res);
               this.setState({ transactionHash: res.transactionHash });
             }else{
@@ -440,7 +444,7 @@ class Button extends React.Component {
         {/* Entry Button */}
           <button 
               ref={this.buttonRef}
-              onClick={(e)=>{this.handleConnect(); this.setState({eventName : e.type})}} 
+              onClick={(e)=>{this.handleConnect(); this.setState({eventName : e.type}); this.setState({ status: 0});}} 
               className="button is-medium is-fullwidth">
                 {this.props.label}
           </button>          
